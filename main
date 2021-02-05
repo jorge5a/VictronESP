@@ -1,0 +1,212 @@
+/*************************************************************************************
+ ReadVeDirectFrameHandler
+
+ Uses VeDirectFrameHandler library
+
+ This example and library tested with NodeMCU 1.0 using Software Serial.
+ If using with a platform containing 2 harware UART's, use those, not SoftwareSerial.
+ Tested with Victron BMV712.
+
+ VEDirect Device:
+   pin 1 - gnd
+   pin 2 - RX  //not used
+   pin 3 - TX
+   pin 4 - power  // not used
+
+ History:
+   2020.05.05 - 0.3 - initial release
+
+**************************************************************************************/
+
+#include "Arduino.h"
+#include <SoftwareSerial.h>
+#include "VeDirectFrameHandler.h"
+#include <ESP8266WiFi.h>
+#include <PubSubClient.h>
+
+const int FW_VERSION = 0;
+//modificar el numero de la nave
+const char*  topic = "fp/taller/2";
+const char* TYPE = "victron";
+const char* ssid = "Wifi_ENA";
+const char* password = "Cfgs_EE.RR.";
+const char* mqtt_server = "_____________"; //your broker address
+const char* mqttUser = "xxxxx";           //your broker user
+const char* mqttPassword = "xxxxxxxx";     // Yoour broker password
+
+
+
+String mac;
+WiFiClient espClient;
+PubSubClient client(espClient);
+VeDirectFrameHandler myve;
+
+// SoftwareSerial
+#define rxPin D7                            // RX using Software Serial so we can use the hardware UART to check the ouput
+#define txPin D8                            // TX Not used
+SoftwareSerial veSerial(rxPin, txPin);         
+
+void setup() {
+	Serial.begin(115200);                   // output serial port
+    veSerial.begin(19200);                  // input serial port (VE device)
+    veSerial.flush();
+    Serial.println("DEBUG-setup");
+     getMac();
+  client.setServer(mqtt_server, 1883);
+
+}
+
+
+void loop() {    
+    ReadVEData();
+    if (!client.connected()) {
+      reconnect();
+    }
+   
+    SendWaitingmSeconds(60000);
+  
+}
+
+void ReadVEData() {
+    while ( veSerial.available() ) {
+        myve.rxData(veSerial.read());
+    }
+    yield();
+}
+
+void SendWaitingmSeconds(int valor) {
+    static unsigned long prev_millis;
+
+    if (millis() - prev_millis > valor) {
+        PrintData();
+        sendValues();
+        prev_millis = millis();
+    }
+}
+
+void PrintData() {
+    for ( int i = 0; i < myve.veEnd; i++ ) {
+    Serial.print(myve.veName[i]);
+    Serial.print("= ");
+    Serial.println(myve.veValue[i]);    
+    }
+}
+
+void getMac() {
+
+  mac = WiFi.macAddress();
+  mac.replace(":", "-");
+
+
+}
+
+bool sendValues() {
+  String s;
+  s="{\"key\":\"type\",\"value\":\""+String(TYPE)+"\"},{\"key\":\"version\",\"value\":"+String(FW_VERSION)+"}, {\"key\":\"mac\",\"value\":\""+mac+"\"}";
+   for ( int i = 0; i < myve.veEnd; i++ ) {
+    Serial.print(myve.veName[i]);
+     s += ",{\"key\":\""+String(myve.veName[i])+"\",\"value\":";
+     if (isValidNumber((myve.veValue[i]))){
+        s+=String(myve.veValue[i]) + "}";
+        
+        }
+     else {
+         s+="\""+String(myve.veValue[i]) + "\"}";
+      }
+    Serial.print("= ");
+    Serial.println(myve.veValue[i]);    
+    }
+ 
+   int msgLen = 0;
+
+  
+     client.loop();
+
+  msgLen += s.length()+2;
+  Serial.print("msgLen=");Serial.println(msgLen);
+  Serial.println(s);
+ client.beginPublish(topic, msgLen, false);    Serial.print("Publish message: ");
+    client.print("[");
+    client.print(s);
+   
+    client.print("]");
+     client.endPublish();
+    
+   
+   
+
+  Serial.println();
+  Serial.println("closing connection");
+
+
+
+  return true;
+}
+
+void reconnect() {
+ 
+  
+    Serial.print("Attempting MQTT connection...");
+    // Create a random client ID
+
+    // Attempt to connect
+    if (client.connect("test222", mqttUser, mqttPassword)) {
+      Serial.println("connected");
+
+
+
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+     delay(2000);
+    }
+  
+}
+
+
+
+void delay2 (uint8_t tiempo) {
+unsigned long ahora=millis();
+
+while (millis()-ahora< tiempo*1000){
+    //Hacer nada
+}
+
+
+
+}
+
+void setup_wifi() {
+
+  delay2(10);
+  // We start by connecting to a WiFi network
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay2(500);
+    Serial.print(".");
+  }
+
+  randomSeed(micros());
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+
+
+boolean isValidNumber(String str){
+  bool valid=true;
+   for(byte i=0;i<str.length();i++)
+   {
+      if(! isDigit(str.charAt(i))) valid=false;;
+        }
+   return valid;
+}  
