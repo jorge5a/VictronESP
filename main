@@ -26,13 +26,13 @@
 
 const int FW_VERSION = 0;
 //modificar el numero de la nave
-const char*  topic = "fp/taller/2";
+const char*  topic = "fp/taller/1";
 const char* TYPE = "victron";
-const char* ssid = "Wifi_ENA";
-const char* password = "Cfgs_EE.RR.";
-const char* mqtt_server = "_____________"; //your broker address
-const char* mqttUser = "xxxxx";           //your broker user
-const char* mqttPassword = "xxxxxxxx";     // Yoour broker password
+const char* ssid = "your wifi sssid";
+const char* password = "ypur wifi password.";
+const char* mqtt_server = "your broker address"; //your broker address
+const char* mqttUser = "your broker user";           //your broker user
+const char* mqttPassword = "your broker passw";     // Yoour broker password
 
 
 
@@ -47,11 +47,12 @@ VeDirectFrameHandler myve;
 SoftwareSerial veSerial(rxPin, txPin);         
 
 void setup() {
-	Serial.begin(115200);                   // output serial port
+  Serial.begin(115200);                   // output serial port
     veSerial.begin(19200);                  // input serial port (VE device)
     veSerial.flush();
     Serial.println("DEBUG-setup");
      getMac();
+     setup_wifi();
   client.setServer(mqtt_server, 1883);
 
 }
@@ -179,7 +180,6 @@ while (millis()-ahora< tiempo*1000){
 
 void setup_wifi() {
 
-  delay2(10);
   // We start by connecting to a WiFi network
   Serial.println();
   Serial.print("Connecting to ");
@@ -188,7 +188,7 @@ void setup_wifi() {
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
-    delay2(500);
+    delay(500);
     Serial.print(".");
   }
 
