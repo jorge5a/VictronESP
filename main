@@ -3,18 +3,15 @@
 
  Uses VeDirectFrameHandler library
 
- This example and library tested with NodeMCU 1.0 using Software Serial.
- If using with a platform containing 2 harware UART's, use those, not SoftwareSerial.
- Tested with Victron BMV712.
 
- VEDirect Device:
+
+ VEDirect connections:
    pin 1 - gnd
    pin 2 - RX  //not used
    pin 3 - TX
    pin 4 - power  // not used
 
- History:
-   2020.05.05 - 0.3 - initial release
+
 
 **************************************************************************************/
 
@@ -28,9 +25,9 @@ const int FW_VERSION = 0;
 //modificar el numero de la nave
 const char*  topic = "fp/taller/1";
 const char* TYPE = "victron";
-const char* ssid = "your wifi sssid";
-const char* password = "ypur wifi password.";
-const char* mqtt_server = "your broker address"; //your broker address
+const char* ssid = "your wifi sssid";                 //your WiFi SSID
+const char* password = "ypur wifi password.";        //Your WiFi Password
+const char* mqtt_server = "your broker address";     //your broker address
 const char* mqttUser = "your broker user";           //your broker user
 const char* mqttPassword = "your broker passw";     // Yoour broker password
 
