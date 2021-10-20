@@ -17,9 +17,9 @@ const int FW_VERSION = 0;
 //modificar el numero de la nave
 const char*  topic = "fp/taller";
 const char* TYPE = "victron";
-const char* mqtt_server = "bqtest.dyndns.org";
-const char* mqttUser = "bqtest";
-const char* mqttPassword = "almaciga";
+const char* mqtt_server = "__yourBroker____";
+const char* mqttUser = "__yourUser___";
+const char* mqttPassword = "___yourPassword_____";
 
 unsigned long lastupdate = 0; // check FW update every FRECUENCY*720
 unsigned long sendupdate = 0; // minimal sendupadate
