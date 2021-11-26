@@ -12,7 +12,7 @@
 #define TRIGGER_PIN 0
 
 bool reconfig=false;
-const char* fwUrlBase = "http://test.ga1a.eu/ota/";
+const char* fwUrlBase = "http://test.xxx.xxx/ota/";
 const int FW_VERSION = 0;
 //modificar el numero de la nave
 const char*  topic = "fp/taller";
