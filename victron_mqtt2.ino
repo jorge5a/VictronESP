@@ -12,14 +12,15 @@
 #define TRIGGER_PIN 0
 
 bool reconfig=false;
-const char* fwUrlBase = "http://test.ga1a.eu/ota/";
+//optional
+const char* fwUrlBase = "http://____otaserverip____/ota/"; 
 const int FW_VERSION = 0;
-//modificar el numero de la nave
+//Topic
 const char*  topic = "fp/taller";
 const char* TYPE = "victron";
-const char* mqtt_server = "bqtest.dyndns.org";
-const char* mqttUser = "bqtest";
-const char* mqttPassword = "almaciga";
+const char* mqtt_server = "___broker_URL___";
+const char* mqttUser = "___mqtt_user___";
+const char* mqttPassword = "___mqtt_pass___";
 
 unsigned long lastupdate = 0; // check FW update every FRECUENCY*720
 unsigned long sendupdate = 0; // minimal sendupadate
